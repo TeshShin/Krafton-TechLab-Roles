@@ -28,7 +28,7 @@
 | W10 | 11.08–11.13 | 43 | **Skeletal Mesh Viewer**, **본 기즈모·본 피킹**, 스냅 | [Week10](https://github.com/TeshShin/Krafton_TechLab_Week10) |
 | W11 | 11.14–11.21 | 65 | **GPU Skinning**, **GPU 타이머 기반 성능 측정**, 미니덤프 | [Week11](https://github.com/TeshShin/Krafton_TechLab_Week11) |
 | W12 | 11.22–11.30 | 58 | **파티클 코어·모듈·에디터**, 파티클 콜리전을 BVH에 연결 | [Week12](https://github.com/TeshShin/Krafton_TechLab_Week12) |
-| W13 | 12.01–12.04 | 34 | **Physics Asset Editor**, 컨스트레인트 축 정렬, 래그돌 | [Week13](https://github.com/TeshShin/Krafton_TechLab_Week13) |
+| W13 | 12.01–12.04 | 34 | **Physics Asset Editor**, 컨스트레인트 축 시각화 정렬, 래그돌 | [Week13](https://github.com/TeshShin/Krafton_TechLab_Week13) |
 | Final | 12.05–12.13 | 54 | 아이템 수집 파이프라인, 시민 구조 래그돌, 사운드, 게임패드 | [Let's Go Firefighter!](https://github.com/TeshShin/Krafton_TechLab_Final) |
 
 **합계 634 커밋**
@@ -54,9 +54,10 @@ CPU/GPU 스키닝을 전역 플래그로 전환하고 그림자 패스에도 적
 성능을 재려고 붙인 **GPU 쿼리 링버퍼가 오히려 메모리 누수의 원인**이었습니다.
 GPU 타이머는 스톨을 피하려고 쿼리 8개를 돌려쓰며 N-7 프레임 결과를 읽습니다. 이건 의도된 설계인데, 그 지연 때문에 **스키닝 모드를 전환하면 이전 모드의 측정값이 그대로 보였습니다.** 전환 시점을 지연에 맞춰 동기화해 해결했습니다.
 
-### 컨스트레인트 — PhysX와 언리얼의 축 규약 차이 (W13)
-Physics Asset Editor의 스윙/트위스트 방향이 언리얼과 다르게 표시됐습니다.
-언리얼 방식(자식 1 / 부모 2)에 맞춰 **부모와 자식의 축을 정렬**해 PhysX와 동일한 결과가 나오도록 정리했습니다.
+### 컨스트레인트 — 엔진 시각화와 PhysX의 축 규약 차이 (W13)
+Physics Asset Editor가 그리는 스윙 콘과 트위스트 부채꼴이 **PhysX 디버거에서 보이는 축과 다른 방향**을 향했습니다.
+엔진의 조인트 프레임은 **Y축이 트위스트 방향**인데 PhysX는 **X축이 트위스트 축**이어서, 시각화 쪽에 `Y→X` 회전과 트위스트 축 기준 +90° 회전을 더해 맞췄습니다. 시뮬레이션이 아니라 그리기 좌표계를 맞춘 작업입니다.
+본 규약도 함께 정리해 언리얼과 같이 `Bone1 = Child`, `Bone2 = Parent`가 되도록 하고, `Rotation1`은 자식 본 로컬, `Rotation2`는 부모 본 로컬 기준으로 잡았습니다.
 
 ---
 
