@@ -24,7 +24,7 @@
 | W06 | 10.10–10.15 | 47 | **데칼 시스템**(페이드 인/아웃 포함), **FXAA** | [Week06](https://github.com/TeshShin/Krafton_TechLab_Week06) |
 | W07 | 10.16–10.22 | 46 | **PointLight**, **Normal Mapping**, 고로 셰이딩 | [Week07](https://github.com/TeshShin/Krafton_TechLab_Week07) |
 | W08 | 10.23–10.30 | 26 | **PSM (Perspective Shadow Map)** | [Week08](https://github.com/TeshShin/Krafton_TechLab_Week08) |
-| W09 | 10.31–11.07 | **72** | **충돌 시스템**(옥트리 쿼리), 오브젝트 풀, HitStop/Slomo, 카메라 트랜지션 | [TopGun](https://github.com/TeshShin/Krafton_TechLab_Week09_TopGun) |
+| W09 | 10.31–11.07 | **72** | **충돌 시스템**(옥트리 브로드페이즈 + 구vs구 내로우페이즈), 오브젝트 풀, HitStop/Slomo, 카메라 트랜지션 | [TopGun](https://github.com/TeshShin/Krafton_TechLab_Week09_TopGun) |
 | W10 | 11.08–11.13 | 43 | **Skeletal Mesh Viewer**, **본 기즈모·본 피킹**, 스냅 | [Week10](https://github.com/TeshShin/Krafton_TechLab_Week10) |
 | W11 | 11.14–11.21 | 65 | **GPU Skinning**, **GPU 타이머 기반 성능 측정**, 미니덤프 | [Week11](https://github.com/TeshShin/Krafton_TechLab_Week11) |
 | W12 | 11.22–11.30 | 58 | **파티클 코어·모듈·에디터**, 파티클 콜리전을 BVH에 연결 | [Week12](https://github.com/TeshShin/Krafton_TechLab_Week12) |
