@@ -20,14 +20,14 @@
 | W02 | 09.05–09.10 | 34 | MVP 변환, 카메라 입력, **쿼터니언 회전 체계**, 뷰포트 비율 유지 | [Week02](https://github.com/TeshShin/Krafton_TechLab_Week02) |
 | W03 | 09.11–09.18 | 37 | **AABB 바운딩 박스**, 빌보드, 그리드·카메라 설정 저장/로드 | [Week03](https://github.com/TeshShin/Krafton_TechLab_Week03) |
 | W04 | 09.19–09.25 | 27 | **씬 JSON 직렬화**, FName 네임테이블, 레벨 생성 경로 통일 | [Week04](https://github.com/TeshShin/Krafton_TechLab_Week04) |
-| W05 | 09.26–10.01 | 52 | **Frustum Culling**, **Occlusion Culling (BVH 하이브리드)** | [Week05](https://github.com/TeshShin/Krafton_TechLab_Week05) |
+| W05 | 09.26–10.01 | 52 | **Frustum Culling**, **CPU HZB Occlusion Culling** | [Week05](https://github.com/TeshShin/Krafton_TechLab_Week05) |
 | W06 | 10.10–10.15 | 47 | **데칼 시스템**(페이드 인/아웃 포함), **FXAA** | [Week06](https://github.com/TeshShin/Krafton_TechLab_Week06) |
 | W07 | 10.16–10.22 | 46 | **PointLight**, **Normal Mapping**, 고로 셰이딩 | [Week07](https://github.com/TeshShin/Krafton_TechLab_Week07) |
 | W08 | 10.23–10.30 | 26 | **PSM (Perspective Shadow Map)** | [Week08](https://github.com/TeshShin/Krafton_TechLab_Week08) |
 | W09 | 10.31–11.07 | **72** | **충돌 시스템**(옥트리 쿼리), 오브젝트 풀, HitStop/Slomo, 카메라 트랜지션 | [TopGun](https://github.com/TeshShin/Krafton_TechLab_Week09_TopGun) |
 | W10 | 11.08–11.13 | 43 | **Skeletal Mesh Viewer**, **본 기즈모·본 피킹**, 스냅 | [Week10](https://github.com/TeshShin/Krafton_TechLab_Week10) |
 | W11 | 11.14–11.21 | 65 | **GPU Skinning**, **GPU 타이머 기반 성능 측정**, 미니덤프 | [Week11](https://github.com/TeshShin/Krafton_TechLab_Week11) |
-| W12 | 11.22–11.30 | 58 | **파티클 코어·모듈·에디터**, **파티클 콜리전(BVH)** | [Week12](https://github.com/TeshShin/Krafton_TechLab_Week12) |
+| W12 | 11.22–11.30 | 58 | **파티클 코어·모듈·에디터**, 파티클 콜리전을 BVH에 연결 | [Week12](https://github.com/TeshShin/Krafton_TechLab_Week12) |
 | W13 | 12.01–12.04 | 34 | **Physics Asset Editor**, 컨스트레인트 축 정렬, 래그돌 | [Week13](https://github.com/TeshShin/Krafton_TechLab_Week13) |
 | Final | 12.05–12.13 | 54 | 아이템 수집 파이프라인, 시민 구조 래그돌, 사운드, 게임패드 | [Let's Go Firefighter!](https://github.com/TeshShin/Krafton_TechLab_Final) |
 
@@ -42,8 +42,8 @@
 문제를 만나 원인을 찾고 해결한 과정이 남아 있는 항목들입니다.
 
 ### Occlusion Culling — 정확도가 안 나오던 문제 (W05)
-BVH + 제한적 쿼리 + 히스토리를 결합한 하이브리드 방식으로 구현했습니다.
-처음에는 NDC Z를 기준으로 판정해 깊이 분포가 비선형이라 컬링이 어색했고, **뷰포트 Z를 사용해 선형화**한 뒤 초기 그리드 해상도를 절반으로 낮춰 정확도를 확보했습니다. 두 차례 롤백 후 재구현했습니다.
+저해상도 깊이 맵 위에 밉 피라미드(HZB)를 쌓고, 사각형 영역의 최대 깊이를 적응적으로 샘플링해 가림을 판정합니다. BVH와 이전 프레임 히스토리를 함께 쓰며, 전부 CPU에서 돕니다.
+처음에는 NDC Z로 판정했는데 원근 나눗셈 때문에 깊이 분포가 비선형이라 컬링이 어색했습니다. **NDC Z를 버리고 뷰 공간 Z를 [0..1]로 선형화**해 쓰고, 초기 그리드 해상도를 절반으로 낮춰 정확도를 확보했습니다. 두 차례 롤백 후 재구현했습니다.
 
 ### PSM — W가 음수가 되는 문제 (W08)
 PSM은 **카메라의 원근 변환 공간**에서 그림자 맵을 만듭니다. 그래서 광원이 정면으로 보고 있는 정점이라도, **카메라 위치에 따라** 변환 후 W가 음수가 되면서 투영이 깨졌습니다.
@@ -51,7 +51,8 @@ PSM은 **카메라의 원근 변환 공간**에서 그림자 맵을 만듭니다
 
 ### GPU Skinning — 성능 측정이 원인이던 메모리 누수 (W11)
 CPU/GPU 스키닝을 전역 플래그로 전환하고 그림자 패스에도 적용했습니다.
-성능을 재려고 붙인 **GPU 쿼리 링버퍼가 오히려 메모리 누수의 원인**이었고, GPU 타이머가 **8프레임 이전 결과를 읽는** 문제도 동기화로 해결했습니다. 측정 도구가 측정 대상을 망가뜨리고 있던 경우였습니다.
+성능을 재려고 붙인 **GPU 쿼리 링버퍼가 오히려 메모리 누수의 원인**이었습니다.
+GPU 타이머는 스톨을 피하려고 쿼리 8개를 돌려쓰며 N-7 프레임 결과를 읽습니다. 이건 의도된 설계인데, 그 지연 때문에 **스키닝 모드를 전환하면 이전 모드의 측정값이 그대로 보였습니다.** 전환 시점을 지연에 맞춰 동기화해 해결했습니다.
 
 ### 컨스트레인트 — PhysX와 언리얼의 축 규약 차이 (W13)
 Physics Asset Editor의 스윙/트위스트 방향이 언리얼과 다르게 표시됐습니다.
